@@ -11,9 +11,45 @@ use Illuminate\Support\Facades\Validator;
  
 class AuthController extends Controller
 {
-    public function login (){
-        return view('auth.login');
+    public function login(Request $request){
+        try {
+            // Start the session
+            $request->session();
+            
+            // Set a session variable
+            session(['test_session' => 'Session is working']);
+            
+            // Retrieve the session variable to check if it was stored
+            $testSession = session('test_session');
+            
+            // Log the session value to verify it
+            \Log::info('Test Session Value: ' . $testSession);
+    
+            // Log the action in the custom Log model
+            Log::create([
+                'message' => 'Test Session Value: ' . $testSession,
+                'level' => 'info',
+                'type' => 'checking',
+            ]);
+            
+            // Pass the session value to the view for display
+            return view('auth.login', ['testSession' => $testSession]);
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Session Error: ' . $e->getMessage());
+    
+            // Log the error action in the custom Log model
+            Log::create([
+                'message' => 'Session Error: ' . $e->getMessage(),
+                'level' => 'error',
+                'type' => 'checking',
+            ]);
+            
+            // Optionally, you can handle the error by displaying a message to the user or redirecting them
+            return view('auth.login', ['error' => 'An error occurred while processing your request.']);
+        }
     }
+    
 
     public function logout(Request $request)
     {

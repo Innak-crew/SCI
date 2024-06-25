@@ -39,6 +39,9 @@
                     </div>
                   </form>
                 </div>
+                @if (isset($testSession))
+                    <p>{{ $testSession }}</p>
+                @endif
               </div>
             </div>
           </div>
