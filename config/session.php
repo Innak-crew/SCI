@@ -2,16 +2,21 @@
 
 use Illuminate\Support\Str;
 
-return array(
-    'driver' => 'database',
+return [
+    'driver' => env('SESSION_DRIVER', 'database'),
     'lifetime' => 120,
-    'expire_on_close' => true,
-    'files' => storage_path().'/sessions',
-    'connection' => 'mysql',
+    'expire_on_close' => false,
+    'encrypt' => false,
+    'files' => storage_path('framework/sessions'),
+    'connection' => env('SESSION_CONNECTION', null),
     'table' => 'sessions',
-    'lottery' => array(2, 100),
-    'cookie' => 'laravel_session',
+    'store' => null,
+    'lottery' => [2, 100],
+    'cookie' => env('SESSION_COOKIE', 'laravel_session'),
     'path' => '/',
-    'domain' => null,
-    'secure' => false,
-   );
+    'domain' => env('SESSION_DOMAIN', null),
+    'secure' => env('SESSION_SECURE_COOKIE', false),
+    'http_only' => true,
+    'same_site' => 'lax',
+];
+
