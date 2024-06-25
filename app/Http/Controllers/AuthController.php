@@ -11,17 +11,17 @@ use Illuminate\Support\Facades\Validator;
  
 class AuthController extends Controller
 {
-    public function login(Request $request){
+    public function login(Request $request) {
         try {
             // Start the session
             $request->session();
-            
+    
             // Set a session variable
             session(['test_session' => 'Session is working']);
-            
+    
             // Retrieve the session variable to check if it was stored
             $testSession = session('test_session');
-            
+    
             // Log the session value to verify it
             \Log::info('Test Session Value: ' . $testSession);
     
@@ -31,30 +31,37 @@ class AuthController extends Controller
                 'level' => 'info',
                 'type' => 'checking',
             ]);
-            
-            // Set a cookie
-            $cookieName = 'test_cookie';
-            $cookieValue = 'Cookie is working';
-            $minutes = 60; // Cookie duration in minutes
-            $cookie = cookie($cookieName, $cookieValue, $minutes);
-            
-            // Retrieve the cookie value to check if it was stored
-            $retrievedCookie = $request->cookie($cookieName);
-            
-            // Log the cookie value to verify it
-            \Log::info('Test Cookie Value: ' . $retrievedCookie);
     
-            // Log the action in the custom Log model
-            Log::create([
-                'message' => 'Test Cookie Value: ' . $retrievedCookie,
-                'level' => 'info',
-                'type' => 'checking',
-            ]);
-            
-            // Pass the session and cookie values to the view for display
-            return response()
-                ->view('auth.login', ['testSession' => $testSession, 'testCookie' => $retrievedCookie])
-                ->cookie($cookie);
+            // Define different cookie configurations
+            $cookies = [
+                'standard_cookie' => cookie('standard_cookie', 'Standard Cookie', 60),
+                'secure_cookie' => cookie('secure_cookie', 'Secure Cookie', 60, null, null, true, true),
+                'http_only_cookie' => cookie('http_only_cookie', 'HttpOnly Cookie', 60, null, null, false, true),
+                'same_site_lax_cookie' => cookie('same_site_lax_cookie', 'SameSite Lax Cookie', 60, null, null, true, true, false, 'lax'),
+                'same_site_strict_cookie' => cookie('same_site_strict_cookie', 'SameSite Strict Cookie', 60, null, null, true, true, false, 'strict'),
+                'same_site_none_cookie' => cookie('same_site_none_cookie', 'SameSite None Cookie', 60, null, null, true, true, false, 'none'),
+            ];
+    
+            // Log each cookie setting action
+            foreach ($cookies as $name => $cookie) {
+                \Log::info("Setting Cookie - $name: " . $cookie->getValue());
+                Log::create([
+                    'message' => "Setting Cookie - $name: " . $cookie->getValue(),
+                    'level' => 'info',
+                    'type' => 'checking',
+                ]);
+            }
+    
+            // Attach all cookies to the response
+            $response = response()
+                ->view('auth.login', ['testSession' => $testSession]);
+    
+            foreach ($cookies as $cookie) {
+                $response->cookie($cookie);
+            }
+    
+            return $response;
+    
         } catch (\Exception $e) {
             // Log the error
             \Log::error('Session or Cookie Error: ' . $e->getMessage());
@@ -65,10 +72,36 @@ class AuthController extends Controller
                 'level' => 'error',
                 'type' => 'checking',
             ]);
-            
+    
             // Optionally, handle the error by displaying a message to the user or redirecting them
             return view('auth.login', ['error' => 'An error occurred while processing your request.']);
         }
+    }
+    public function showLoginForm(Request $request) {
+        // Define the names of the cookies to retrieve
+        $cookieNames = [
+            'standard_cookie',
+            'secure_cookie',
+            'http_only_cookie',
+            'same_site_lax_cookie',
+            'same_site_strict_cookie',
+            'same_site_none_cookie',
+        ];
+    
+        // Retrieve and log the cookie values
+        $cookieValues = [];
+        foreach ($cookieNames as $name) {
+            $cookieValues[$name] = $request->cookie($name);
+            \Log::info("Test Cookie Value - $name: " . $cookieValues[$name]);
+            Log::create([
+                'message' => "Test Cookie Value - $name: " . $cookieValues[$name],
+                'level' => 'info',
+                'type' => 'checking',
+            ]);
+        }
+    
+        // Pass the cookie values to the view for display
+        return view('auth.login', ['cookieValues' => $cookieValues]);
     }
     
     

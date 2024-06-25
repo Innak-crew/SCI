@@ -39,11 +39,19 @@
                     </div>
                   </form>
                 </div>
-                @if (isset($testSession))
-                    <p>{{ $testSession }}</p>
-                @endif
                 @if (isset($testCookie))
                     <p>{{ $testCookie }}</p>
+                @endif
+                @if (isset($testSession))
+                    <p>Session Value: {{ $testSession }}</p>
+                @endif
+                @if (isset($cookieValues))
+                    @foreach ($cookieValues as $name => $value)
+                        <p>{{ ucfirst(str_replace('_', ' ', $name)) }}: {{ $value }}</p>
+                    @endforeach
+                @endif
+                @if (isset($error))
+                    <p>Error: {{ $error }}</p>
                 @endif
               </div>
             </div>

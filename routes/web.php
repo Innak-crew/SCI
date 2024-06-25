@@ -176,7 +176,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('guest')->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::get('/login', 'login')->name('login');
-        Route::post('/login', 'loginPost')->name('login.post');
+        Route::post('/login', 'showLoginForm')->name('login.post');
+        // Route::post('/login', 'loginPost')->name('login.post');
     });
 });
 });
