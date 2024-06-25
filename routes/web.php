@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
+// Disable CSRF validation for these routes
+Route::withoutMiddleware([VerifyCsrfToken::class])->group(function () {
+   
 Route::middleware('auth')->group(function () {
     
     Route::get('/', function () { 
@@ -171,11 +174,10 @@ Route::middleware('auth')->group(function () {
 
 // Routes for guest users
 Route::middleware('guest')->group(function () {
-    // Disable CSRF validation for these routes
-    Route::withoutMiddleware([VerifyCsrfToken::class])->group(function () {
-        Route::controller(AuthController::class)->group(function () {
-            Route::get('/login', 'login')->name('login');
-            Route::post('/login', 'loginPost')->name('login.post');
-        });
+    Route::controller(AuthController::class)->group(function () {
+        Route::get('/login', 'login')->name('login');
+        Route::post('/login', 'loginPost')->name('login.post');
     });
 });
+});
+
