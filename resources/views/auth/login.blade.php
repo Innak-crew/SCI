@@ -42,6 +42,9 @@
                 @if (isset($testSession))
                     <p>{{ $testSession }}</p>
                 @endif
+                @if (isset($testCookie))
+                    <p>{{ $testCookie }}</p>
+                @endif
               </div>
             </div>
           </div>

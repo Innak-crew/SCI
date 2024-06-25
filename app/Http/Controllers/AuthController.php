@@ -32,23 +32,45 @@ class AuthController extends Controller
                 'type' => 'checking',
             ]);
             
-            // Pass the session value to the view for display
-            return view('auth.login', ['testSession' => $testSession]);
+            // Set a cookie
+            $cookieName = 'test_cookie';
+            $cookieValue = 'Cookie is working';
+            $minutes = 60; // Cookie duration in minutes
+            $cookie = cookie($cookieName, $cookieValue, $minutes);
+            
+            // Retrieve the cookie value to check if it was stored
+            $retrievedCookie = $request->cookie($cookieName);
+            
+            // Log the cookie value to verify it
+            \Log::info('Test Cookie Value: ' . $retrievedCookie);
+    
+            // Log the action in the custom Log model
+            Log::create([
+                'message' => 'Test Cookie Value: ' . $retrievedCookie,
+                'level' => 'info',
+                'type' => 'checking',
+            ]);
+            
+            // Pass the session and cookie values to the view for display
+            return response()
+                ->view('auth.login', ['testSession' => $testSession, 'testCookie' => $retrievedCookie])
+                ->cookie($cookie);
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Session Error: ' . $e->getMessage());
+            \Log::error('Session or Cookie Error: ' . $e->getMessage());
     
             // Log the error action in the custom Log model
             Log::create([
-                'message' => 'Session Error: ' . $e->getMessage(),
+                'message' => 'Session or Cookie Error: ' . $e->getMessage(),
                 'level' => 'error',
                 'type' => 'checking',
             ]);
             
-            // Optionally, you can handle the error by displaying a message to the user or redirecting them
+            // Optionally, handle the error by displaying a message to the user or redirecting them
             return view('auth.login', ['error' => 'An error occurred while processing your request.']);
         }
     }
+    
     
 
     public function logout(Request $request)
