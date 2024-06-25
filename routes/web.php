@@ -13,9 +13,10 @@ use App\Http\Controllers\QuantityUnitsController;
 use App\Http\Controllers\reminderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScheduleController;
+use App\Models\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // Disable CSRF validation for these routes
@@ -179,6 +180,71 @@ Route::middleware('guest')->group(function () {
         Route::post('/login', 'showLoginForm')->name('login.post');
         // Route::post('/login', 'loginPost')->name('login.post');
     });
+
 });
 });
 
+Route::get('/run', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Cache cleared successfully',
+    ]);
+});
+
+
+Route::get('/runcmd', function (Request $request) {
+    try {
+        // Clear cache
+        Artisan::call('cache:clear');
+        $cache = Artisan::output();
+
+        // Clear configuration cache
+        Artisan::call('config:clear');
+        $config = Artisan::output();
+
+        // Cache route files
+        Artisan::call('route:cache');
+        $route = Artisan::output();
+
+        // Clear compiled views
+        Artisan::call('view:clear');
+        $view = Artisan::output();
+
+        // Logging successful cache clearing
+        \Log::info('Cache, config, and view caches cleared successfully.');
+
+        // Creating log entry
+        Log::create([
+            'message' => 'Cache, config, and view caches cleared successfully. Cache: ' . $cache . ', Config: ' . $config . ', View: ' . $view,
+            'level' => 'info',
+            'type' => 'runcmd',
+        ]);
+
+        // Returning JSON response with success status and details
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cache, config, and view caches cleared successfully',
+            'cache' => $cache,
+            'config' => $config,
+            'route' => $route,
+            'view' => $view,
+        ]);
+    } catch (\Exception $e) {
+        // Logging error clearing cache
+        \Log::error('Error clearing cache: ' . $e->getMessage());
+
+        // Creating log entry for error
+        Log::create([
+            'message' => 'Failed to clear cache: ' . $e->getMessage(),
+            'level' => 'error',
+            'type' => 'runcmd',
+        ]);
+
+        // Returning JSON response with error status and message
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to clear cache',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+});
