@@ -16,6 +16,8 @@ use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+
 Route::middleware('auth')->group(function () {
     
     Route::get('/', function () { 
@@ -169,8 +171,11 @@ Route::middleware('auth')->group(function () {
 
 // Routes for guest users
 Route::middleware('guest')->group(function () {
-    Route::controller(AuthController::class)->group(function () {
-        Route::get('/login', 'login')->name('login');
-        Route::post('/login',  'loginPost')->name('login.post');
+    // Disable CSRF validation for these routes
+    Route::withoutMiddleware([VerifyCsrfToken::class])->group(function () {
+        Route::controller(AuthController::class)->group(function () {
+            Route::get('/login', 'login')->name('login');
+            Route::post('/login', 'loginPost')->name('login.post');
+        });
     });
 });
