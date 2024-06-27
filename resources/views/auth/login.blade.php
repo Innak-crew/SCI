@@ -2,6 +2,7 @@
 
 @section('content')
 
+@use('App\Http\Helpers\Helper')
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
       <div class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
         <div class="d-flex align-items-center justify-content-center w-100">
@@ -39,20 +40,7 @@
                     </div>
                   </form>
                 </div>
-                @if (isset($testCookie))
-                    <p>{{ $testCookie }}</p>
-                @endif
-                @if (isset($testSession))
-                    <p>Session Value: {{ $testSession }}</p>
-                @endif
-                @if (isset($cookieValues))
-                    @foreach ($cookieValues as $name => $value)
-                        <p>{{ ucfirst(str_replace('_', ' ', $name)) }}: {{ $value }}</p>
-                    @endforeach
-                @endif
-                @if (isset($error))
-                    <p>Error: {{ $error }}</p>
-                @endif
+                {{Helper::inrConvertNumberToWords(1234)}}
               </div>
             </div>
           </div>
